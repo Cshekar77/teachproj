@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <style>
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 14px;
+      padding: 28px 32px 0;
+    }
+    .sections { padding: 28px 32px; display: flex; flex-direction: column; gap: 32px; }
+    .btn-add::before { content: '+'; font-size: 1rem; }
+    .badge-day { background: rgba(108,142,245,.12); color: var(--accent); }
+    .badge-time { font-family: 'DM Mono', monospace; background: rgba(245,200,108,.12); color: var(--warning); font-size: .78rem; }
+    tr:hover td { background: rgba(108,142,245,.04); }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="logo">🎓 Admin Dashboard</span>
+    <div class="topbar-right">
+      <button class="theme-toggle"></button>
+      <a href="/weekly_summary" class="btn-nav" style="background:var(--accent2);color:#0f1117;border-color:var(--accent2);font-weight:700;">📊 Weekly Summary</a>
+      <a href="/change_password" class="btn-nav">🔒 Change Password</a>
+      <a href="/logout" class="btn-nav">Logout</a>
+      <a href="/" class="btn-nav">← Main Page</a>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-grid">
+    <div class="stat-card"><div class="num">{{ faculty|length }}</div><div class="label">Faculty</div></div>
+    <div class="stat-card"><div class="num">{{ subject|length }}</div><div class="label">Subjects</div></div>
+    <div class="stat-card"><div class="num">{{ section|length }}</div><div class="label">Sections</div></div>
+    <div class="stat-card"><div class="num">{{ day|length }}</div><div class="label">Days</div></div>
+    <div class="stat-card"><div class="num">{{ timeslot|length }}</div><div class="label">Time Slots</div></div>
+    <div class="stat-card"><div class="num">{{ mapping|length }}</div><div class="label">Mappings</div></div>
+  </div>
+
+  <div class="sections">
+
+    <!-- FACULTY -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>Faculty</h2>
+        <div style="display:flex;gap:10px;">
+          <a href="/add/teacher_user" class="btn-add" style="background:var(--accent2);color:#0f1117;">+ Teacher Login</a>
+          <a href="/add/faculty" class="btn-add">+ Add Faculty</a>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for f in faculty %}
+            <tr>
+              <td><code>{{ f.id }}</code></td>
+              <td><strong>{{ f.name }}</strong></td>
+              <td>{{ f.phone }}</td>
+              <td>{{ f.email }}</td>
+              <td class="actions">
+                <a href="/edit/faculty/{{ f.id }}" class="edit-btn">Edit</a>
+                <a href="/delete/Faculty/{{ f.id }}" class="del-btn" onclick="return confirm('Delete {{ f.name }}?')">Delete</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="5">No faculty added yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUBJECT -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>Subjects</h2>
+        <a href="/add/subject" class="btn-add">Add Subject</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Subject Name</th><th>Code</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for s in subject %}
+            <tr>
+              <td><code>{{ s.id }}</code></td>
+              <td>{{ s.subject_name }}</td>
+              <td><span class="badge">{{ s.subject_code }}</span></td>
+              <td class="actions">
+                <a href="/edit/subject/{{ s.id }}" class="edit-btn">Edit</a>
+                <a href="/delete/Subject/{{ s.id }}" class="del-btn" onclick="return confirm('Delete subject?')">Delete</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="4">No subjects added yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECTION -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>Sections</h2>
+        <a href="/add/section" class="btn-add">Add Section</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Section</th><th>Semester</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for sec in section %}
+            <tr>
+              <td><code>{{ sec.id }}</code></td>
+              <td>{{ sec.section_name }}</td>
+              <td><span class="badge">Sem {{ sec.semester }}</span></td>
+              <td class="actions">
+                <a href="/edit/section/{{ sec.id }}" class="edit-btn">Edit</a>
+                <a href="/delete/Section/{{ sec.id }}" class="del-btn" onclick="return confirm('Delete section?')">Delete</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="4">No sections added yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DAY -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>Days</h2>
+        <a href="/add/day" class="btn-add">Add Day</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Day Name</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for d in day %}
+            <tr>
+              <td><code>{{ d.id }}</code></td>
+              <td><span class="badge badge-day">{{ d.day_name }}</span></td>
+              <td class="actions">
+                <a href="/edit/day/{{ d.id }}" class="edit-btn">Edit</a>
+                <a href="/delete/Day/{{ d.id }}" class="del-btn" onclick="return confirm('Delete day?')">Delete</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="3">No days added yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TIMESLOT -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>Time Slots</h2>
+        <a href="/add/timeslot" class="btn-add">Add Time Slot</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Start Time</th><th>End Time</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for ts in timeslot %}
+            <tr>
+              <td><code>{{ ts.id }}</code></td>
+              <td><span class="badge badge-time">{{ ts.start_time }}</span></td>
+              <td><span class="badge badge-time">{{ ts.end_time }}</span></td>
+              <td class="actions">
+                <a href="/edit/timeslot/{{ ts.id }}" class="edit-btn">Edit</a>
+                <a href="/delete/TimeSlot/{{ ts.id }}" class="del-btn" onclick="return confirm('Delete time slot?')">Delete</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="4">No time slots added yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- TEACHER LOGINS -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>Teacher Logins</h2>
+        <a href="/add/teacher_user" class="btn-add">+ Add Teacher Login</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Linked Faculty</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in teacher_users %}
+            <tr>
+              <td><code>{{ u.id }}</code></td>
+              <td><strong>{{ u.username }}</strong></td>
+              <td>
+                {% if u.faculty_name %}
+                  <span class="badge">{{ u.faculty_name }}</span>
+                {% else %}
+                  <span style="color:var(--muted)">— Not linked —</span>
+                {% endif %}
+              </td>
+              <td class="actions">
+                <a href="/edit/teacher_user/{{ u.id }}" class="edit-btn">Edit</a>
+                <a href="/delete/teacher_user/{{ u.id }}" class="del-btn" onclick="return confirm('Delete login for {{ u.username }}?')">Delete</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="4">No teacher logins created yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUBJECT MAPPING — now with Day & Time columns -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>Subject Mapping</h2>
+        <a href="/add/subject_mapping" class="btn-add">Add Mapping</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Faculty</th>
+              <th>Subject</th>
+              <th>Section</th>
+              <th>Day</th>
+              <th>Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in mapping %}
+            <tr>
+              <td><code>{{ m.id }}</code></td>
+              <td><strong>{{ m.faculty_name }}</strong></td>
+              <td>{{ m.subject_name }}</td>
+              <td>{{ m.section_name }}</td>
+              <td>
+                {% if m.day_name %}
+                  <span class="badge badge-day">{{ m.day_name }}</span>
+                {% else %}
+                  <span style="color:var(--muted)">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if m.start_time and m.end_time %}
+                  <span class="badge badge-time">{{ m.start_time }} – {{ m.end_time }}</span>
+                {% else %}
+                  <span style="color:var(--muted)">—</span>
+                {% endif %}
+              </td>
+              <td class="actions">
+                <a href="/edit/mapping/{{ m.id }}" class="edit-btn">Edit</a>
+                <a href="/delete/SubjectMapping/{{ m.id }}" class="del-btn" onclick="return confirm('Delete mapping?')">Delete</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="7">No mappings added yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /sections -->
+
+</body>
+</html>

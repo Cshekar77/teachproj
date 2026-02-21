@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Time Slot</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+</head>
+<body>
+  <div class="topbar">
+    <span class="logo">🎓 Faculty Timetable</span>
+    <div class="topbar-right">
+      <button class="theme-toggle"></button>
+      <a href="/admin" class="btn-nav">← Back to Admin</a>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;padding:40px 16px;min-height:calc(100vh - 57px);">
+    <div class="card" style="width:100%;max-width:420px;">
+      <h1 style="font-size:1.3rem;font-weight:700;margin-bottom:24px;">✏️ Edit Time Slot</h1>
+      <form method="POST">
+        <div style="margin-bottom:18px;"><label>Time Slot ID</label><input class="id-field" type="text" value="{{ timeslot.id }}" disabled/><p class="id-note">ID cannot be changed</p></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div style="margin-bottom:18px;">
+            <label>Start Time</label>
+            <select name="start_time" required>
+              {% set times = ['6:00 AM','6:30 AM','7:00 AM','7:30 AM','8:00 AM','8:30 AM','9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM','12:00 PM','12:30 PM','1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','4:30 PM','5:00 PM','5:30 PM','6:00 PM'] %}
+              {% for t in times %}
+              <option {% if timeslot.start_time == t %}selected{% endif %}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="margin-bottom:18px;">
+            <label>End Time</label>
+            <select name="end_time" required>
+              {% for t in times %}
+              <option {% if timeslot.end_time == t %}selected{% endif %}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:28px;">
+          <a href="/admin" class="btn-secondary" style="flex:1;text-align:center;">← Cancel</a>
+          <button type="submit" class="btn-primary" style="flex:1;">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

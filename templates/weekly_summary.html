@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weekly Summary</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <style>
+    .page-wrap { min-height: 100vh; }
+    .content { padding: 32px; }
+
+    .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+    .page-sub { color: var(--muted); font-size: .9rem; margin-bottom: 28px; }
+
+    /* ── STAT GRID ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px; margin-bottom: 32px;
+    }
+
+    /* ── SECTION ── */
+    .section-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; margin-bottom: 28px;
+    }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header h2 { font-size: .95rem; font-weight: 600; }
+
+    .export-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent2); color: #0f1117;
+      text-decoration: none; font-size: .82rem; font-weight: 700;
+      padding: 7px 16px; border-radius: 6px; transition: opacity .2s;
+    }
+    .export-btn:hover { opacity: .85; }
+
+    /* ── BAR CHART ── */
+    .bar-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; border-bottom: 1px solid var(--border);
+    }
+    .bar-row:last-child { border-bottom: none; }
+    .bar-label { width: 160px; font-size: .85rem; font-weight: 500; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; background: var(--surface2); border-radius: 20px; height: 10px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .6s ease; }
+    .bar-val { font-family: 'DM Mono', monospace; font-size: .82rem; color: var(--accent); width: 60px; text-align: right; flex-shrink: 0; }
+
+    /* ── DAY TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface2); }
+    th {
+      padding: 10px 16px; text-align: left;
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px;
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: 11px 16px; font-size: .875rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(108,142,245,.04); }
+
+    .badge-day  { background: rgba(108,142,245,.12); color: var(--accent); }
+    .badge-time { background: rgba(245,200,108,.12); color: var(--warning); font-family: 'DM Mono', monospace; font-size: .78rem; }
+
+    .empty-state { text-align: center; padding: 40px; color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="logo">🎓 Weekly Summary</span>
+    <div class="topbar-right">
+      <button class="theme-toggle"></button>
+      <a href="/admin" class="btn-nav">← Admin Dashboard</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">📊 Weekly Summary</div>
+    <div class="page-sub">Overview of faculty teaching hours, class distribution, and workload</div>
+
+    <!-- TOP STATS -->
+    <div class="stat-grid">
+      <div class="stat-card"><div class="num">{{ total_faculty }}</div><div class="label">Faculty</div></div>
+      <div class="stat-card"><div class="num">{{ total_classes }}</div><div class="label">Total Classes</div></div>
+      <div class="stat-card"><div class="num">{{ total_hours }}</div><div class="label">Total Hours</div></div>
+      <div class="stat-card"><div class="num">{{ total_subjects }}</div><div class="label">Subjects Mapped</div></div>
+      <div class="stat-card"><div class="num">{{ total_sections }}</div><div class="label">Sections</div></div>
+    </div>
+
+    <!-- FACULTY WORKLOAD BAR CHART -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>👩‍🏫 Faculty Workload — Classes per Week</h2>
+        <a href="/export/weekly_summary" class="export-btn">⬇ Export to Excel</a>
+      </div>
+      {% if faculty_stats %}
+        {% set max_classes = faculty_stats[0].class_count %}
+        {% for f in faculty_stats %}
+        <div class="bar-row">
+          <div class="bar-label" title="{{ f.faculty_name }}">{{ f.faculty_name }}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: {{ (f.class_count / max_classes * 100) | int }}%"></div>
+          </div>
+          <div class="bar-val">{{ f.class_count }} class{% if f.class_count != 1 %}es{% endif %}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">No mapping data found.</div>
+      {% endif %}
+    </div>
+
+    <!-- DETAILED FACULTY TABLE -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>📋 Detailed Faculty Schedule</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Faculty</th>
+              <th>Subject</th>
+              <th>Section</th>
+              <th>Day</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in schedule %}
+            <tr>
+              <td><strong>{{ row.faculty_name }}</strong></td>
+              <td>{{ row.subject_name }}</td>
+              <td>{{ row.section_name }} <span style="color:var(--muted);font-size:.8rem;">Sem {{ row.semester }}</span></td>
+              <td>
+                {% if row.day_name %}<span class="badge badge-day">{{ row.day_name }}</span>
+                {% else %}<span style="color:var(--muted)">—</span>{% endif %}
+              </td>
+              <td>
+                {% if row.start_time %}<span class="badge badge-time">{{ row.start_time }} – {{ row.end_time }}</span>
+                {% else %}<span style="color:var(--muted)">—</span>{% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="empty-state">No schedule data found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CLASSES PER DAY -->
+    <div class="section-block">
+      <div class="section-header">
+        <h2>📅 Classes per Day</h2>
+      </div>
+      {% if day_stats %}
+        {% set max_day = day_stats[0].class_count %}
+        {% for d in day_stats %}
+        <div class="bar-row">
+          <div class="bar-label">{{ d.day_name }}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: {{ (d.class_count / max_day * 100) | int }}%; background: linear-gradient(90deg, var(--accent2), var(--accent));"></div>
+          </div>
+          <div class="bar-val">{{ d.class_count }} class{% if d.class_count != 1 %}es{% endif %}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">No day data found.</div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

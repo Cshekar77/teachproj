@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Access Denied</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <style>
+    .page-wrap {
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    .center-wrap {
+      flex: 1; display: flex; align-items: center;
+      justify-content: center; padding: 40px 16px;
+    }
+    .error-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 48px 36px;
+      width: 100%; max-width: 440px; text-align: center;
+    }
+    .big-icon { font-size: 3.5rem; margin-bottom: 20px; }
+    .code {
+      font-size: .78rem; font-weight: 700; letter-spacing: 2px;
+      color: var(--danger); text-transform: uppercase; margin-bottom: 12px;
+    }
+    h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 12px; }
+    .desc { color: var(--muted); font-size: .93rem; line-height: 1.6; margin-bottom: 32px; }
+    .btn-row { display: flex; gap: 12px; justify-content: center; }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="logo">🎓 Faculty Timetable</span>
+    <div class="topbar-right">
+      <button class="theme-toggle"></button>
+      <a href="/logout" class="btn-nav">Logout</a>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="center-wrap">
+    <div class="error-card">
+      <div class="big-icon">🚫</div>
+      <div class="code">403 — Access Denied</div>
+      <h1>Teachers can't access this page</h1>
+      <p class="desc">
+        This area is restricted to admins only.<br/>
+        If you think this is a mistake, please contact your administrator.
+      </p>
+      <div class="btn-row">
+        <a href="/" class="btn-primary">← Go to My Timetable</a>
+        <a href="/logout" class="btn-secondary">Logout</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

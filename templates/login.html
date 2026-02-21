@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <style>
+    .login-wrap {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 24px 16px;
+    }
+    .logo-block { text-align: center; margin-bottom: 32px; }
+    .logo-block .icon { font-size: 2.8rem; }
+    .logo-block h1 { font-size: 1.5rem; font-weight: 700; margin-top: 8px; }
+    .logo-block p { font-size: .85rem; color: var(--muted); margin-top: 4px; }
+    .theme-corner { position: fixed; top: 16px; right: 16px; }
+    .footer-note { text-align:center; margin-top:20px; font-size:.78rem; color:var(--muted); }
+  </style>
+</head>
+<body>
+
+  <!-- Theme toggle fixed in corner on login page -->
+  <div class="theme-corner">
+    <button class="theme-toggle"></button>
+  </div>
+
+  <div class="login-wrap">
+    <div class="logo-block">
+      <div class="icon">🎓</div>
+      <h1>Faculty Timetable</h1>
+      <p>Sign in to continue</p>
+    </div>
+
+    <div class="card" style="width:100%;max-width:400px;">
+      {% if error %}<div class="error-box">⚠️ {{ error }}</div>{% endif %}
+      <form method="POST">
+        <div style="margin-bottom:20px;"><label>Username</label><input type="text" name="username" placeholder="Enter your username" required autofocus/></div>
+        <div style="margin-bottom:20px;"><label>Password</label><input type="password" name="password" placeholder="Enter your password" required/></div>
+        <button type="submit" class="btn-primary" style="width:100%;padding:12px;font-size:.95rem;">Sign In →</button>
+      </form>
+      <p class="footer-note">Admin → Dashboard &nbsp;·&nbsp; Teacher → Timetable</p>
+    </div>
+  </div>
+
+</body>
+</html>

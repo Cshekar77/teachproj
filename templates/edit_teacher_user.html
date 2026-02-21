@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Teacher Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+</head>
+<body>
+  <div class="topbar">
+    <span class="logo">🎓 Faculty Timetable</span>
+    <div class="topbar-right">
+      <button class="theme-toggle"></button>
+      <a href="/admin" class="btn-nav">← Back to Admin</a>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;padding:40px 16px;min-height:calc(100vh - 57px);">
+    <div class="card" style="width:100%;max-width:420px;">
+      <h1 style="font-size:1.3rem;font-weight:700;margin-bottom:8px;">✏️ Edit Teacher Login</h1>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:28px;">Update username or reset password</p>
+      <form method="POST">
+        <div style="margin-bottom:18px;"><label>User ID</label><input class="id-field" type="text" value="{{ user.id }}" disabled/></div>
+        <div style="margin-bottom:18px;"><label>Username</label><input type="text" name="username" value="{{ user.username }}" required/></div>
+        <hr class="divider"/>
+        <p style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px;">🔒 Reset Password (optional)</p>
+        <div style="margin-bottom:18px;"><label>New Password</label><input type="password" name="new_password" placeholder="Leave blank to keep current"/><p class="hint">Only fill this if you want to change the password</p></div>
+        <div style="display:flex;gap:12px;margin-top:28px;">
+          <a href="/admin" class="btn-secondary" style="flex:1;text-align:center;">← Cancel</a>
+          <button type="submit" class="btn-primary" style="flex:1;">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

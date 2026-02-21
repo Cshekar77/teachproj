@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Faculty Timetable</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <style>
+    .hero { text-align: center; padding: 48px 32px 32px; }
+    .hero h1 {
+      font-size: 2rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .hero p { color: var(--muted); font-size: .95rem; }
+    .filter-wrap { padding: 0 32px 28px; }
+    .filter-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px 24px;
+      display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+    .filter-group select { min-width: 180px; }
+    .btn-filter {
+      background: var(--accent); color: #fff; border: none;
+      padding: 9px 24px; border-radius: 8px; font-size: .88rem;
+      font-weight: 600; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: opacity .2s; height: fit-content;
+    }
+    .btn-filter:hover { opacity: .85; }
+    .btn-clear {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border); padding: 9px 20px;
+      border-radius: 8px; font-size: .88rem;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      transition: all .2s; text-decoration: none;
+      display: inline-block; height: fit-content;
+    }
+    .btn-clear:hover { border-color: var(--muted); color: var(--text); }
+    .result-meta { padding: 0 32px 12px; font-size: .82rem; color: var(--muted); }
+    .result-meta span { color: var(--accent); font-weight: 600; }
+    .table-wrap { padding: 0 32px 40px; }
+    .faculty-name { font-weight: 600; color: var(--text); }
+    .faculty-meta { font-size: .78rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .badge-subject { background: rgba(78,204,163,.12); color: var(--accent2); }
+    .badge-section { background: rgba(108,142,245,.12); color: var(--accent); }
+    .badge-sem { background: rgba(245,200,108,.12); color: var(--warning); font-family: 'DM Mono', monospace; }
+    .badge-day { background: rgba(245,108,108,.12); color: #f58c6c; }
+    .badge-time { background: rgba(245,200,108,.08); color: var(--warning); font-family: 'DM Mono', monospace; font-size: .78rem; }
+    .dash { color: var(--muted); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    @media (max-width: 600px) {
+      .filter-wrap, .result-meta, .table-wrap { padding-left: 16px; padding-right: 16px; }
+      .filter-card { flex-direction: column; align-items: stretch; }
+      .filter-group select { min-width: unset; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="logo">🎓 Faculty Timetable</span>
+    <div class="topbar-right">
+      <button class="theme-toggle"></button>
+      <a href="/change_password" class="btn-nav">🔒 Change Password</a>
+      <a href="/logout" class="btn-nav">Logout</a>
+      <a href="/admin" class="btn-nav">Admin Dashboard →</a>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Faculty Timetable</h1>
+    <p>View and filter class schedules by teacher or day</p>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-wrap">
+    <div class="filter-card">
+      <form method="GET" action="/" style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-end; width:100%;">
+
+        <div class="filter-group">
+          <label>Teacher</label>
+          <select name="faculty_id">
+            <option value="">All Teachers</option>
+            {% for f in faculty_list %}
+            <option value="{{ f.id }}" {% if selected_faculty and f.id|string == selected_faculty %}selected{% endif %}>
+              {{ f.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Day</label>
+          <select name="day_id">
+            <option value="">All Days</option>
+            {% for d in day_list %}
+            <option value="{{ d.id }}" {% if selected_day and d.id|string == selected_day %}selected{% endif %}>
+              {{ d.day_name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="btn-filter">Filter</button>
+        <a href="/" class="btn-clear">Clear</a>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- RESULT COUNT -->
+  <div class="result-meta">
+    Showing <span>{{ timetable|length }}</span> record{% if timetable|length != 1 %}s{% endif %}
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <div class="table-card">
+      {% if timetable %}
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Faculty</th>
+              <th>Subject</th>
+              <th>Section</th>
+              <th>Semester</th>
+              <th>Day</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in timetable %}
+            <tr>
+              <td>
+                <div class="faculty-name">{{ row.faculty_name }}</div>
+                <div class="faculty-meta">{{ row.phone }} · {{ row.email }}</div>
+              </td>
+              <td><span class="badge badge-subject">{{ row.subject_name }}</span></td>
+              <td><span class="badge badge-section">{{ row.section_name }}</span></td>
+              <td><span class="badge badge-sem">Sem {{ row.semester }}</span></td>
+              <td>
+                {% if row.day_name %}
+                  <span class="badge badge-day">{{ row.day_name }}</span>
+                {% else %}
+                  <span class="dash">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if row.start_time and row.end_time %}
+                  <span class="badge badge-time">{{ row.start_time }} – {{ row.end_time }}</span>
+                {% else %}
+                  <span class="dash">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <p>No timetable records found.<br>Try changing your filters or add mappings in the admin panel.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</body>
+</html>

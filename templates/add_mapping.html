@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Mapping</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}"/>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+</head>
+<body>
+  <div class="topbar">
+    <span class="logo">🎓 Faculty Timetable</span>
+    <div class="topbar-right">
+      <button class="theme-toggle"></button>
+      <a href="/admin" class="btn-nav">← Back to Admin</a>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;padding:40px 16px;min-height:calc(100vh - 57px);">
+    <div class="card" style="width:100%;max-width:520px;">
+      <h1 style="font-size:1.3rem;font-weight:700;margin-bottom:24px;">➕ Add Subject Mapping</h1>
+      <form method="POST">
+        <div style="margin-bottom:18px;"><label>Mapping ID</label><input type="text" name="id" placeholder="e.g. MAP2" required/></div>
+        <div style="margin-bottom:18px;"><label>Faculty</label>
+          <select name="faculty_id" required><option value="" disabled selected>Select Faculty</option>{% for f in faculty %}<option value="{{ f.id }}">{{ f.name }}</option>{% endfor %}</select>
+        </div>
+        <div style="margin-bottom:18px;"><label>Subject</label>
+          <select name="subject_id" required><option value="" disabled selected>Select Subject</option>{% for s in subject %}<option value="{{ s.id }}">{{ s.subject_name }} ({{ s.subject_code }})</option>{% endfor %}</select>
+        </div>
+        <div style="margin-bottom:18px;"><label>Section</label>
+          <select name="section_id" required><option value="" disabled selected>Select Section</option>{% for sec in section %}<option value="{{ sec.id }}">{{ sec.section_name }} — Sem {{ sec.semester }}</option>{% endfor %}</select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div style="margin-bottom:18px;"><label>Day</label>
+            <select name="day_id" required><option value="" disabled selected>Select Day</option>{% for d in day %}<option value="{{ d.id }}">{{ d.day_name }}</option>{% endfor %}</select>
+          </div>
+          <div style="margin-bottom:18px;"><label>Time Slot</label>
+            <select name="timeslot_id" required><option value="" disabled selected>Select Time</option>{% for ts in timeslot %}<option value="{{ ts.id }}">{{ ts.start_time }} – {{ ts.end_time }}</option>{% endfor %}</select>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:28px;">
+          <a href="/admin" class="btn-secondary" style="flex:1;text-align:center;">← Cancel</a>
+          <button type="submit" class="btn-primary" style="flex:1;">Add Mapping</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
